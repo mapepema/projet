@@ -1,0 +1,52 @@
+#! /bin/sh 
+
+# Installation 
+# 1. déplacer ce script dans /etc/init.d/provisionning 
+# 2. chmod +x le script 
+
+# Start & Stop 
+# start : 'service provisionning start' ou '/etc/init.d/provisionning start'
+# stop : 'service provisionning stop' ou '/etc/init.d/provisionning stop'
+
+NAME=provisionning
+DESC="Daemon pour provisionning VM PHP CLI Script"
+PIDFILE="/var/run/${NAME}.pid"
+LOGFILE="/var/log/${NAME}.log"
+
+DAEMON="/usr/bin/php"
+DAEMON_OPTS="/usr/share/provisionning.php"
+
+START_OPTS="--start --background --make-pidfile --pidfile ${PIDFILE} --exec	${DAEMON} ${DAEMON_OPTS}"
+STOP_OPTS="--stop --pidfile ${PIDFILE}"
+
+test -x $DAEMON || exit 0 
+
+set -e 
+
+case "$1" in 
+	start)
+		echo -n "Starting ${DESC}: "
+		start-stop-daemon $START_OPTS >> $LOGFILE
+		echo "$NAME."
+		;;
+	stop)
+		echo -n "Stopping $DESC: "
+		start-stop-daemon $STOP_OPTS
+		echo "$NAME."
+		rm -f $PIDFILE
+		;;
+	restart|force-reload)
+		echo -n "Restarting $DESC: "
+		start-stop-daemon $STOP_OPTS
+		sleep 1
+		start-stop-daemon $START_OPTS >> $LOGFILE
+		echo "$NAME."
+		;;
+	*)
+		N=/etc/init.d/$NAME
+		echo "Utilisation: $N {start|stop|restart|force-reload}" >&2
+		exit 1
+		;;
+esac
+
+exit 0 

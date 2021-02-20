@@ -1,0 +1,10 @@
+Options +FollowSymLinks
+RewriteEngine on
+
+# Bearer
+RewriteCond %{HTTP:Authorization} ^(.+)$
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [NC,QSA] #changer par celui que student 
